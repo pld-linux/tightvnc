@@ -9,13 +9,12 @@ Group:		X11/Applications/Networking
 Source0:	http://belnet.dl.sourceforge.net/sourceforge/vnc-tight/%{name}-%{version}_unixsrc.tar.gz
 Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com
-BuildRequires:	zlib
 BuildRequires:	libjpeg-devel
+BuildRequires:	zlib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_prefix		/usr/X11R6
-%define		_xbindir	%{_prefix}/bin
-%define		_xmandir	%{_prefix}/man
+%define		_mandir		%{_prefix}/man
 
 %description
 VNC is a great client/server software package allowing remote network
@@ -37,24 +36,28 @@ niemal w czasie rzeczywistym.
 %setup -qn vnc_unixsrc
 
 %build
-OPTFLAGS="%{rpmcflags}" CC="%{__cc}"
 xmkmf
-%{__make} World
+%{__make} World \
+	CC="%{__cc}" \
+	CDEBUGFLAGS="%{rpmcflags}"
 cd Xvnc
-./configure \
-%{__make}
+./configure
+%{__make} \
+	CC="%{__cc}" \
+	CDEBUGFLAGS="%{rpmcflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_xbindir},%{_xmandir}/man1,%{_applnkdir}/Network}
-install vncserver $RPM_BUILD_ROOT%{_xbindir}/vncserver
-install vncviewer/vncviewer $RPM_BUILD_ROOT%{_xbindir}/vncviewer
-install vncpasswd/vncpasswd $RPM_BUILD_ROOT%{_xbindir}/vncpasswd
-install vncconnect/vncconnect $RPM_BUILD_ROOT%{_xbindir}/vncconnect
-install vncserver.man $RPM_BUILD_ROOT%{_xmandir}/man1/vncserver.man
-install vncviewer/vncviewer.man $RPM_BUILD_ROOT%{_xmandir}/man1/vncviewer.man
-install vncpasswd/vncpasswd.man $RPM_BUILD_ROOT%{_xmandir}/man1/vncpasswd.man
-install vncconnect/vncconnect.man $RPM_BUILD_ROOT%{_xmandir}/man1/vncconnect.man
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_applnkdir}/Network}
+
+install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
+	vncconnect/vncconnect $RPM_BUILD_ROOT%{_bindir}
+
+install vncserver.man $RPM_BUILD_ROOT%{_mandir}/man1/vncserver.1
+install vncviewer/vncviewer.man $RPM_BUILD_ROOT%{_mandir}/man1/vncviewer.1
+install vncpasswd/vncpasswd.man $RPM_BUILD_ROOT%{_mandir}/man1/vncpasswd.1
+install vncconnect/vncconnect.man $RPM_BUILD_ROOT%{_mandir}/man1/vncconnect.1
+
 install %{SOURCE1} $RPM_BUILD_ROOT%{_applnkdir}/Network
 
 %clean
@@ -63,6 +66,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README
-%attr(755,root,root)%{_xbindir}/*
-%{_xmandir}/man1/*
+%attr(755,root,root) %{_bindir}/*
+%{_mandir}/man1/*
 %{_applnkdir}/Network/tightvnc.desktop
