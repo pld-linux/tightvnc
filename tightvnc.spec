@@ -39,7 +39,6 @@ Summary:	VNC X server - tightvnc version
 Summary(pl):	X serwer VNC - wersja tightvnc
 Group:		X11/Applications/Networking
 Requires:	XFree86-common
-Requires:	xfs
 Obsoletes:	vnc-server
 
 %description server
