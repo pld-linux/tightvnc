@@ -17,6 +17,7 @@ Patch2:		%{name}-fds_bits+malloc.patch
 URL:		http://www.tightvnc.com/
 BuildRequires:	libjpeg-devel
 BuildRequires:	zlib
+BuildRequires:	XFree86-devel
 Provides:	vnc-client
 Obsoletes:	vnc
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
