@@ -6,7 +6,7 @@ Release:	1
 License:	GPL
 Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
-Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
+Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
 Patch0:		%{name}-vncserver.patch
 Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com/
@@ -14,7 +14,6 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	zlib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	vnc
-
 
 %description
 VNC is a great client/server software package allowing remote network
