@@ -2,7 +2,7 @@
 Name=tightvnc
 Comment=Remote access software
 Comment[pl]=Program do zdalnego dostępu
-Exec=/usr/bin/vncviewer
+Exec=vncviewer
 Terminal=0
 Type=Application
 Categories=Network;
