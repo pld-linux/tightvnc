@@ -11,6 +11,7 @@ Group:		X11/Applications/Networking
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}dev5_unixsrc.tar.bz2
 # Source0-md5:	bdcae6956ae382e5aca6cb708d085766
 Source1:	%{name}.desktop
+Source2:	%{name}48.png
 Patch0:		%{name}-vncserver.patch
 Patch1:		%{name}-imake.patch
 Patch2:		%{name}-fds_bits+malloc.patch
@@ -89,7 +90,7 @@ cd Xvnc
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_datadir}/vnc/classes} \
-	$RPM_BUILD_ROOT%{_desktopdir}
+	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 	
 install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
 	vncconnect/vncconnect Xvnc/programs/Xserver/Xvnc $RPM_BUILD_ROOT%{_bindir}
@@ -103,6 +104,7 @@ install vncconnect/vncconnect.man $RPM_BUILD_ROOT%{_mandir}/man1/vncconnect.1
 install Xvnc/programs/Xserver/Xvnc.man $RPM_BUILD_ROOT%{_mandir}/man1/Xvnc.1
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}/%{name}.png
 
 %clean
 rm -rf $RPM_BUILD_ROOT
