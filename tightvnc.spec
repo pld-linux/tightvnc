@@ -6,7 +6,7 @@ Release:	1
 License:	GPL
 Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
-Source0:	http://belnet.dll.sourceforge.net/sourceforge/vnc-tight/%{name}-%{version}_unixsrc.tar.gz
+Source0:	http://belnet.dl.sourceforge.net/sourceforge/vnc-tight/%{name}-%{version}_unixsrc.tar.gz
 Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com
 BuildRequires:	zlib
