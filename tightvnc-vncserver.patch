@@ -6,7 +6,7 @@ diff -uNr vnc_unixsrc.orig/vncserver vnc_unixsrc/vncserver
  $depth = 24;
  $desktopName = "X";
 -$vncClasses = "/usr/local/vnc/classes";
-+$vncClasses = "/usr/X11R6/share/vnc/classes";
++$vncClasses = "/usr/share/vnc/classes";
  $vncUserDir = "$ENV{HOME}/.vnc";
  $fontPath = "unix/:7100";
  
