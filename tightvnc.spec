@@ -11,26 +11,27 @@ Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com
 BuildRequires:	zlib
 BuildRequires:	libjpeg-devel
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_prefix		/usr/X11R6
 %define		_xbindir	%{_prefix}/bin
 %define		_xmandir	%{_prefix}/man
 
 %description
-VNC is a great client/server software package allowing remote network access
-to graphical desktops. TightVNC is optimized to work over slow network connections
-such as low-speed modem links. While oroginal VNC may be verry slow when your
-connection is not fast enough, with TightVNC you can work remotely almost in
-real time in most environments.
+VNC is a great client/server software package allowing remote network
+access to graphical desktops. TightVNC is optimized to work over slow
+network connections such as low-speed modem links. While oroginal VNC
+may be verry slow when your connection is not fast enough, with
+TightVNC you can work remotely almost in real time in most
+environments.
 
 %description -l pl
-VNC jest wspania³ym programem client/server umo¿liwiaj±cym zdalny dostêp
-do graficznych pulpitów. TightVNC jest zoptymalizowany do pracy przy
-wolniejszych po³±czeniach sieciowych takich jak po³±czenia modemowe.
-Oryginalne VNC mo¿e pracowaæ wolno kiedy po³±czenie nie jest wystarczaj±co
-szybkie, natomiast z TightVNC mo¿esz pracowaæ zdalnie niemal w czasie
-rzeczywistym.
+VNC jest wspania³ym programem client/server umo¿liwiaj±cym zdalny
+dostêp do graficznych pulpitów. TightVNC jest zoptymalizowany do pracy
+przy wolniejszych po³±czeniach sieciowych takich jak po³±czenia
+modemowe. Oryginalne VNC mo¿e pracowaæ wolno kiedy po³±czenie nie jest
+wystarczaj±co szybkie, natomiast z TightVNC mo¿esz pracowaæ zdalnie
+niemal w czasie rzeczywistym.
 
 %prep
 %setup -qn vnc_unixsrc
