@@ -2,6 +2,7 @@
 Name=tightvnc
 Comment=Remote access software
 Comment[pl]=Program do zdalnego dostępu
+Icon=tightvnc.png
 Exec=vncviewer
 Terminal=false
 Type=Application
