@@ -3,20 +3,17 @@
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
-Version:	1.3
-Release:	0.dev5.2
+Version:	1.2.9
+Release:	6
 License:	GPL
+Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
-#Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
-Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}dev5_unixsrc.tar.bz2
-# Source0-md5:	bdcae6956ae382e5aca6cb708d085766
-Source1:	%{name}.desktop
-Source2:	%{name}48.png
+Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
+# Source0-md5:	f804b26c098625e3a2675a0aa7709e31
 Patch0:		%{name}-vncserver.patch
 Patch1:		%{name}-imake.patch
-Patch2:		%{name}-fds_bits+malloc.patch
+Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com/
-BuildRequires:	XFree86-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	zlib
 Provides:	vnc-client
@@ -74,7 +71,6 @@ stronie serwera, jak i przegl±darki).
 %setup -qn vnc_unixsrc
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
 
 %build
 xmkmf
@@ -90,7 +86,7 @@ cd Xvnc
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_datadir}/vnc/classes} \
-	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
+	$RPM_BUILD_ROOT%{_desktopdir}
 	
 install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
 	vncconnect/vncconnect Xvnc/programs/Xserver/Xvnc $RPM_BUILD_ROOT%{_bindir}
@@ -104,7 +100,6 @@ install vncconnect/vncconnect.man $RPM_BUILD_ROOT%{_mandir}/man1/vncconnect.1
 install Xvnc/programs/Xserver/Xvnc.man $RPM_BUILD_ROOT%{_mandir}/man1/Xvnc.1
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_desktopdir}
-install %{SOURCE2} $RPM_BUILD_ROOT%{_pixmapsdir}/%{name}.png
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -115,7 +110,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/vncviewer
 %{_mandir}/man1/vncviewer.1*
 %{_desktopdir}/tightvnc.desktop
-%{_pixmapsdir}/tightvnc.png
 
 %files server
 %defattr(644,root,root,755)
