@@ -5,6 +5,6 @@ Comment[pl]=Program do zdalnego dostępu
 Exec=vncviewer
 Terminal=false
 Type=Application
-Categories=Network;
+Categories=Network;RemoteAccess;
 Encoding=UTF-8
 # vi: encoding=utf-8
