@@ -1,0 +1,1102 @@
+diff -Nur vnc_unixsrc.orig/Xvnc/config/cf/Imake.cf vnc_unixsrc/Xvnc/config/cf/Imake.cf
+--- vnc_unixsrc.orig/Xvnc/config/cf/Imake.cf	2003-02-06 19:11:28.000000000 +0100
++++ vnc_unixsrc/Xvnc/config/cf/Imake.cf	2004-08-22 16:56:06.142290805 +0200
+@@ -696,10 +696,20 @@
+ #  endif
+ #  undef __k6
+ # endif /* __k6 */
++/* Keep this order! s390x has also __s390__ defined */
++# if defined(__s390x__)
++#  define s390xArchitecture
++#  undef __s390x__
++#  undef __s390__
++# endif
+ # ifdef __s390__
+ #   define s390Architecture
+ #  undef __s390__
+ # endif /* s390 */
++# ifdef alpha
++#  define AlphaArchitecture
++#  undef alpha
++# endif /* alpha */
+ # ifdef __alpha
+ #  define AlphaArchitecture
+ #  undef __alpha
+@@ -801,6 +811,22 @@
+ # ifdef PpcArchitecture
+ #  define PowerPCArchitecture
+ # endif
++# if defined(__s390x__)
++#  define s390xArchitecture
++#  undef __s390x__
++# endif
++# if defined(__AMD64__) || defined (__x86_64__)
++#  undef __AMD64__
++#  undef __x86_64__
++#  define AMD64Architecture
++# endif
++# if defined(AMD64__) || defined (x86_64__)
++#  undef AMD64__
++#  undef x86_64__
++#  ifndef AMD64Architecture
++#   define AMD64Architecture
++#  endif
++# endif
+ #endif /* linux */
+ 
+ #if (defined(__Lynx__) || defined(Lynx)) && (defined(i386) || defined(__i386__) || defined(__x86__) || defined(__powerpc__) || defined(__sparc__) || defined(sparc))
+diff -Nur vnc_unixsrc.orig/Xvnc/config/cf/linux.cf vnc_unixsrc/Xvnc/config/cf/linux.cf
+--- vnc_unixsrc.orig/Xvnc/config/cf/linux.cf	2002-03-20 11:49:23.000000000 +0100
++++ vnc_unixsrc/Xvnc/config/cf/linux.cf	2004-08-22 16:54:10.226087731 +0200
+@@ -40,14 +40,7 @@
+ 
+ /* Set some defaults for the Default* values in case imake doesn't find them */
+ #ifndef DefaultLinuxCLibMajorVersion
+-#if defined(AlphaArchitecture) || defined(PowerPCArchitecture) || \
+-    defined(SparcArchitecture) || defined(ArmArchitecure) || \
+-    defined(i386Architecture) || defined(s390Architecture) || \
+-    defined(s390xArchitecture)
+ #define DefaultLinuxCLibMajorVersion	6
+-#else
+-#define DefaultLinuxCLibMajorVersion	5
+-#endif
+ #endif
+ #ifndef DefaultLinuxCLibMinorVersion
+ #if DefaultLinuxCLibMajorVersion > 5
+@@ -158,75 +151,172 @@
+ #endif
+ 
+ #define MkdirHierCmd		mkdir -p
+-#if LinuxElfDefault
+-#if UseElfFormat
+-#define CcCmd			gcc
+-#define AsCmd			as
+-#define LdCmd			ld
+-#define AsmDefines		-D__ELF__
+-#define CplusplusCmd		c++
+-#if UseStaticTermcapLib
+-#define TermcapLibrary		StaticLibrary(/usr/lib/termcap,termcap)
+-#endif
+-#else
+-#ifdef AlphaArchitecture
+-#define CcCmd			gcc -b alpha-linuxecoff
+-#define CplusplusCmd		g++ -b alpha-linuxecoff
+-#define AsCmd			/usr/alpha-linuxecoff/bin/as
+-#define LdCmd			/usr/alpha-linuxecoff/bin/ld -m alpha
+-#define AsmDefines		-DUSE_GAS -U__ELF__
+-#endif /* AlphaArchitecture */
+-#ifdef SparcArchitecture
+-#define AsmDefines		-D__ELF__
+-#endif /* SparcArchitecture */
+-#ifdef i386Architecture
+-#define CcCmd			gcc -b i486-linuxaout
+-#define CplusplusCmd		g++ -b i486-linuxaout
+-#define AsCmd			/usr/i486-linuxaout/bin/as
+-#define LdCmd			/usr/i486-linuxaout/bin/ld -m i386linux
+-#define AsmDefines		-DUSE_GAS -U__ELF__
+-#endif /* i386Architecture */
+-#ifdef Mc68020Architecture
+-#define CcCmd			gcc -b m68k-linuxaout
+-#define CplusplusCmd		g++ -b m68k-linuxaout
+-#define AsCmd			/usr/m68k-linuxaout/bin/as
+-#define LdCmd			/usr/m68k-linuxaout/bin/ld -m m68klinux
+-#define AsmDefines		-DUSE_GAS -U__ELF__
+-#endif /* Mc68020Architecture */
++
++#ifndef HaveLib64
++# if defined (AMD64Architecture) || defined (s390xArchitecture)
++#  define HaveLib64	YES
++# else
++#  define HaveLib64	NO
++# endif
+ #endif
++
++#if LinuxElfDefault
++# if UseElfFormat
++#  ifdef MipsArchitecture
++#   ifndef AsCmd
++#     define AsCmd		gcc -c -x assembler-with-cpp
++#   endif
++#   ifndef MakeDllModules
++#     define MakeDllModules	YES
++#   endif
++#  endif /* MipsArchitecure */
++#  if defined (i386Architecture) && ((GccMajorVersion >3) \
++   || ((GccMajorVersion == 3) &&  (GccMinorVersion >= 1)))
++#   ifndef CcCmd
++#    define CcCmd		gcc -m32
++#   endif
++#   ifndef CplusplusCmd
++#    define CplusplusCmd		c++ -m32
++#   endif
++#  endif
++#  ifndef CcCmd
++#   define CcCmd		gcc
++#   define CplusplusCmd		c++
++#  endif
++#  ifndef AsCmd
++#   define AsCmd		CcCmd -c -x assembler
++#  endif
++#  define AsmDefines		-D__ELF__
++#  ifndef LdCmd
++#   define LdCmd		CcCmd -nostdlib
++#  endif
++#  ifndef LinuxUsesNcurses
++#   if LinuxCLibMajorVersion >= 6
++#    define LinuxUsesNcurses	YES
++#   else
++#    define LinuxUsesNcurses	NO
++#   endif
++#  endif
++#  ifndef TermcapLibrary
++#   if UseStaticTermcapLib
++#    if LinuxUsesNcurses
++#     if !HaveLib64
++#      define TermcapLibrary	StaticLibrary(/usr/lib,ncurses)
++#     else
++#      define TermcapLibrary	StaticLibrary(/usr/lib64,ncurses)
++#     endif
++#    else
++#     if !HaveLib64
++#      define TermcapLibrary	StaticLibrary(/usr/lib/termcap,termcap)
++#     else
++#      define TermcapLibrary	StaticLibrary(/usr/lib64/termcap,termcap)
++#     endif
++#    endif
++#   else
++#    if LinuxUsesNcurses
++#     define TermcapLibrary	-lncurses
++#    else
++#     define TermcapLibrary	-ltermcap
++#    endif
++#   endif
++#  endif
++# else
++#  ifdef AlphaArchitecture
++#   define CcCmd		gcc -b alpha-linuxecoff
++#   define CplusplusCmd		g++ -b alpha-linuxecoff
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib -Wl,"-m alpha"
++#   define AsmDefines		-DUSE_GAS -U__ELF__
++#  endif /* AlphaArchitecture */
++#  ifdef HPArchitecture
++#   define CcCmd		gcc
++#   define CplusplusCmd		g++
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib
++#   define AsmDefines		-DUSE_GAS -U__ELF__
++#  endif /* HPArchitecture */
++#  ifdef i386Architecture
++#   define CcCmd		gcc -b i486-linuxaout
++#   define CplusplusCmd		g++ -b i486-linuxaout
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib -Wl,"-m i386linux"
++#   define AsmDefines		-DUSE_GAS -U__ELF__
++#  endif /* i386Architecture */
++#  ifdef ia64Architecture
++#   define CcCmd		gcc
++#   define CplusplusCmd		g++
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib
++#   define AsmDefines		-DUSE_GAS -U__ELF__
++#  endif /* ia64Architecture */
++#  ifdef Mc68020Architecture
++#   define CcCmd		gcc -b m68k-linuxaout
++#   define CplusplusCmd		g++ -b m68k-linuxaout
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib -Wl,"-m m68klinux"
++#   define AsmDefines		-DUSE_GAS -U__ELF__
++#  endif /* Mc68020Architecture */
++#  ifdef AMD64Architecture
++#   define CcCmd		gcc
++#   define CplusplusCmd		g++
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib
++#   define AsmDefines		-DUSE_GAS -U__ELF__
++#  endif /* AMD64Architecture */
++# endif /* UseElfFormat */
+ #else
+-#if UseElfFormat
+-#ifdef AlphaArchitecture
+-#define CcCmd			gcc -b alpha-linux
+-#define AsCmd			/usr/alpha-linux/bin/as
+-#define LdCmd			ld -m elf64alpha
+-#define AsmDefines		-D__ELF__
+-#define CplusplusCmd		c++ -b alpha-linux
+-#endif /* AlphaArchitecture */
+-#ifdef SparcArchitecture
+-#define AsmDefines		-D__ELF__
+-#endif /* SparcArchitecture */
+-#ifdef i386Architecture
+-#define CcCmd			gcc -b i486-linux
+-#define AsCmd			/usr/i486-linux/bin/as
+-#define LdCmd			ld -m elf_i386
+-#define AsmDefines		-D__ELF__
+-#define CplusplusCmd		c++ -b i486-linux
+-#endif /* i386Architecture */
+-#ifdef Mc68020Architecture
+-#define CcCmd			gcc -b m68k-linux
+-#define AsCmd			/usr/m68k-linux/bin/as
+-#define LdCmd			ld -m m68kelf
+-#define AsmDefines		-D__ELF__
+-#define CplusplusCmd		c++ -b m68k-linux
+-#endif /* Mc68020Architecture */
+-#else
+-#define CcCmd			gcc
+-#define AsCmd			as
+-#define LdCmd			ld
+-#define AsmDefines		-DUSE_GAS
+-#endif
++# if UseElfFormat
++#  ifdef AlphaArchitecture
++#   define CcCmd		gcc -b alpha-linux
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib -Wl,"-m elf64alpha"
++#   define AsmDefines		-D__ELF__
++#   define CplusplusCmd		c++ -b alpha-linux
++#  endif /* AlphaArchitecture */
++#  ifdef HPArchitecture
++#   define CcCmd		gcc
++#   define CplusplusCmd		g++
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib
++#   define AsmDefines		-D__ELF__
++#   define SharedLibXau		YES
++#  endif /* HPArchitecture */
++#  ifdef i386Architecture
++#   define CcCmd		gcc -b i486-linux
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nosdlib -Wl,"-m elf_i386"
++#   define AsmDefines		-D__ELF__
++#   define CplusplusCmd		c++ -b i486-linux
++#  endif /* i386Architecture */
++#  ifdef ia64Architecture
++#   define CcCmd		gcc
++#   define CplusplusCmd		g++
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib
++#   define AsmDefines		-D__ELF__
++#  endif /* ia64Architecture */
++#  ifdef Mc68020Architecture
++#   define CcCmd		gcc -b m68k-linux
++#   define AsCmd		CcCmd -c -x assembler
++#   define LdCmd		CcCmd -nostdlib -W,l"-m m68kelf"
++#   define AsmDefines		-D__ELF__
++#   define CplusplusCmd		c++ -b m68k-linux
++#  endif /* Mc68020Architecture */
++#  ifdef AMD64Architecture
++#   define CcCmd                 gcc
++#   define CplusplusCmd          g++
++#   define AsCmd                 CcCmd -c -x assembler
++#   define LdCmd                 CcCmd -nostdlib
++#   define AsmDefines            -D__ELF__
++#  endif /* AMD64Architecture */
++# else
++#  define CcCmd			gcc
++#  define AsCmd			CcCmd -c -x assembler
++#  define LdCmd			CcCmd -nostdlib
++#  define AsmDefines		-DUSE_GAS
++# endif
+ #endif
++
+ #if UseElfFormat
+ #ifndef BuildDynamicLoading
+ #define BuildDynamicLoading	YES
+@@ -255,65 +345,148 @@
+ #endif /* i386Architecture */
+ 
+ #ifdef AlphaArchitecture
+-#define OptimizedCDebugFlags	-O2
+-#define LinuxMachineDefines	-D__alpha__
+-#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME -DPART_NET
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines -D_XSERVER64
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	DefaultGcc2AxpOpt
++# endif
++# define LinuxMachineDefines	-D__alpha__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines -D_XSERVER64 -DJENSEN_SUPPORT
++# ifdef UseCompaqMathLibrary
++#  define MathLibrary		-lcpml -lm
++# endif
+ #endif /* AlphaArchitecture */
+ 
++#ifdef Arm32Architecture
++# define DefaultCCOptions	-fsigned-char
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O3
++# endif
++# define LinuxMachineDefines	-D__arm__ -D__arm32__ -U__arm -Uarm
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++#endif /* Arm32Achitecture */
++
++#ifdef HPArchitecture
++# define OptimizedCDebugFlags	-O2  GccAliasingArgs
++# define LinuxMachineDefines	-D__hppa__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++#endif
++
++#ifdef i386Architecture
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	DefaultGcc2i386Opt
++# endif
++# define LinuxMachineDefines	-D__i386__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++#endif /* i386Architecture */
++
++#ifdef ia64Architecture
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O2  GccAliasingArgs
++# endif
++# define LinuxMachineDefines	-D__ia64__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines -D_XSERVER64
++#endif /* ia64Architecture */
++
+ #ifdef Mc68020Architecture
+-#define OptimizedCDebugFlags	-O2
+-#define LinuxMachineDefines 	-D__mc68000__
+-#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME -DPART_NET
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O2  GccAliasingArgs
++# endif
++# define LinuxMachineDefines	-D__mc68000__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
+ #endif /* Mc68020Architecture */
+ 
++#ifdef MipsArchitecture
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O2  GccAliasingArgs
++# endif
++# define LinuxMachineDefines	-D__mips__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++#endif
++
++#ifdef PpcArchitecture
++# define DefaultCCOptions	-fsigned-char
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	DefaultGcc2PpcOpt
++# endif
++# define LinuxMachineDefines	-D__powerpc__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++#endif /* PpcArchitecture */
++
+ #ifdef s390Architecture
+-#define OptimzedCDebugFlags	-O2
+-#define LinuxMachineDefines	-D__s390__
+-#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME -DPART_NET
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O2 -fomit-frame-pointer GccAliasingArgs
++# endif
++# define LinuxMachineDefines	-D__s390__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
+ #endif /* s390Architecture */
+ 
+ #ifdef s390xArchitecture
+-#define OptimzedCDebugFlags	-O2
++/*#define DefaultCCOptions	-fsigned-char */
++#define OptimizedCDebugFlags	-O3 -fomit-frame-pointer
+ #define LinuxMachineDefines	-D__s390x__
+-#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME -DPART_NET
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME
++#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines -D_XSERVER64
+ #endif /* s390xArchitecture */
+ 
+-#ifdef PowerPCArchitecture
+-#define DefaultCCOptions        -fsigned-char
+-#define OptimizedCDebugFlags	-O2
+-#define LinuxMachineDefines 	-D__powerpc__
+-#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME -DPART_NET
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
+-#endif /* PowerPCArchitecture */
+-
+-#ifdef ArmArchitecture
+-#define DefaultCCOptions	-fsigned-char
+-#define OptimizedCDebugFlags	-O2
+-#define LinuxMachineDefines	-D__arm__
+-#define ServerOSDefines		XFree86ServerOSDefines -DDDXTIME -DPART_NET
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
+-#endif /* Arm */
+-
+ #ifdef SparcArchitecture
+-#define OptimizedCDebugFlags	-O2
+-#define LinuxMachineDefines 	-D__sparc__
+-#define ServerOSDefines		-DDDXOSINIT
+-#define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
+-#define AsVISOption		-Av9a
+-#ifdef Sparc64Architecture
+-#define AsOutputArchSize	64
+-#else
+-#define AsOutputArchSize	32
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O2  GccAliasingArgs
++# endif
++# define LinuxMachineDefines	-D__sparc__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++# define AsVISOption		-Av9a
++# ifdef Sparc64Architecture
++#  define AsOutputArchSize	64
++# else
++#  define AsOutputArchSize	32
++# endif
+ #endif
+-#if LinuxCLibMajorVersion <= 5
+-/* Why we lack this when everybody else has it? */
+-#define HasCbrt NO
++
++#ifdef SuperHArchitecture
++# ifndef SuperHArchOptFlags
++#  ifdef SuperH4Architecture
++#   define SuperHArchOptFlags	-m4
++#  elif defined(SuperH4NOFPUArchitecture)
++#   define SuperHArchOptFlags	-m4-nofpu
++#  else
++#   define SuperHArchOptFlags	-m3
++#  endif
++# endif 
++# ifndef SuperHebArchitecture
++#  ifdef SuperHebArchitecture
++#   define SuperHEndianFlags	-mb
++#  else
++#   define SuperHEndianFlags	-ml
++#  endif
++# endif
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	-O2 SuperHArchOptFlags SuperHEndianFlags  GccAliasingArgs
++# endif
++# define LinuxMachineDefines	-D__sh__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines
++# ifndef DoLoadableServer
++#  define DoLoadableServer NO
++# endif
+ #endif
+-#endif /* SparcArchitecture */
++
++#ifdef AMD64Architecture
++# ifndef OptimizedCDebugFlags
++#  define OptimizedCDebugFlags	DefaultGcc2AMD64Opt
++# endif
++# define LinuxMachineDefines   -D__AMD64__
++# define ServerOSDefines	XFree86ServerOSDefines -DDDXTIME
++# define ServerExtraDefines	-DGCCUSESGAS XFree86ServerDefines -D_XSERVER64
++#endif /* AMD64Architecture */
+ 
+ /*================================================================
+    BEGIN ORL VNC modification
+@@ -371,6 +544,18 @@
+ #define MakeNamedTargetSubdir(dir,flags,subname)\
+ 	$(MAKE) -C dir $(MFLAGS) $(PARALLELMFLAGS) flags subname
+ 
++#if HaveLib64
++# ifndef LibDirName
++#  define LibDirName		lib64
++# endif
++# ifndef SystemUsrLibDir
++#  define SystemUsrLibDir	/usr/lib64
++# endif
++# ifndef TkLibDir
++#  define TkLibDir		/usr/lib64
++# endif
++#endif
++
+ #ifndef HasZlib
+ # define HasZlib	YES
+ #endif
+diff -Nur vnc_unixsrc.orig/Xvnc/config/cf/xfree86.cf vnc_unixsrc/Xvnc/config/cf/xfree86.cf
+--- vnc_unixsrc.orig/Xvnc/config/cf/xfree86.cf	2003-01-29 14:52:36.000000000 +0100
++++ vnc_unixsrc/Xvnc/config/cf/xfree86.cf	2004-08-22 16:57:32.798509832 +0200
+@@ -1211,10 +1211,38 @@
+ #endif
+ #endif
+ 
++#if  (GccMajorVersion == 3) &&  (GccMinorVersion >= 1)
++# define GccAliasingArgs      -fno-strict-aliasing
++#else
++# define GccAliasingArgs      /* */
++#endif
++
+ #if HasGcc2 && defined(i386Architecture)
+-#ifndef DefaultGcc2i386Opt
+-#define DefaultGcc2i386Opt -O2 -fno-strength-reduce
++# ifndef DefaultGcc2i386Opt
++#  define DefaultGcc2i386Opt -O2 -fno-strength-reduce GccAliasingArgs
++# endif
+ #endif
++
++#if HasGcc2 && defined(AMD64Architecture)
++# ifndef DefaultGcc2AMD64Opt
++#  define DefaultGcc2AMD64Opt -O2 -fno-strength-reduce GccAliasingArgs
++# endif
++#endif
++
++#if HasGcc2 && defined(AlphaArchitecture)
++# ifndef DefaultGcc2AxpOpt
++#  define DefaultGcc2AxpOpt -O2 GccAliasingArgs
++# endif
++#endif
++
++#if HasGcc2 && defined(PpcArchitecture)
++# ifndef DefaultGcc2PpcOpt
++#  define DefaultGcc2PpcOpt -O2 GccAliasingArgs
++# endif
++#endif
++
++#ifndef DefaultGcc2DebugOpt
++# define DefaultGcc2DebugOpt
+ #endif
+ 
+ #ifndef DontDefineXF86Contrib
+diff -Nur vnc_unixsrc.orig/Xvnc/config/imake/imakemdep.h vnc_unixsrc/Xvnc/config/imake/imakemdep.h
+--- vnc_unixsrc.orig/Xvnc/config/imake/imakemdep.h	2003-02-19 17:39:54.000000000 +0100
++++ vnc_unixsrc/Xvnc/config/imake/imakemdep.h	2004-08-22 17:00:21.991934077 +0200
+@@ -297,15 +297,68 @@
+ #ifdef unix
+ 	"-Uunix",	/* remove unix symbol so that filename unix.c okay */
+ #endif
+-#if defined(__386BSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__) || defined(MACH) || defined(linux) || defined(__GNU__)
++#if defined(__386BSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || \
++    defined(__FreeBSD__) || defined(MACH) || defined(linux) || \
++    defined(__GNU__) || defined(__bsdi__) || defined(__GNUC__)
+ # ifdef __i386__
+ 	"-D__i386__",
++#  if defined(__GNUC__) && (__GNUC__ >= 3)
++	"-m32",
++#  endif
++# endif
++# ifdef __i486__
++	"-D__i486__",
++# endif
++# ifdef __i586__
++	"-D__i586__",
++# endif
++# ifdef __i686__
++	"-D__i686__",
++# endif
++# ifdef __k6__
++	"-D__k6__",
++# endif
++# ifdef __ia64__
++	"-D__ia64__",
++# endif
++# ifdef __amd64__
++	"-D__amd64__",
++# endif
++# ifdef __x86_64__
++	"-D__amd64__",
++# endif
++# ifdef __s390__
++	"-D__s390__",
++# endif
++# ifdef __alpha__
++	"-D__alpha__",
++# endif
++# ifdef __arm__
++	"-D__arm__",
++# endif
++# ifdef __s390x__
++       "-D__s390x__",
+ # endif
+ # ifdef __sparc__
+ 	"-D__sparc__",
+ # endif
+-# ifdef __alpha__
+-       "-D__alpha__",
++# ifdef __m68k__
++	"-D__m68k__",
++# endif
++# ifdef __sh__
++	"-D__sh__",
++# endif
++# ifdef __sh3__
++	"-D__sh3__",
++# endif
++# ifdef __SH3__
++	"-D__SH3__",
++# endif
++# ifdef __SH4__
++	"-D__SH4__",
++# endif
++# ifdef __SH4NOFPU__
++	"-D__SH4_NOFPU__",
+ # endif
+ # ifdef __GNUC__
+ 	"-traditional",
+@@ -474,19 +527,10 @@
+ # ifdef __i386__
+ 	"-D__i386__",
+ # endif
+-# ifdef __s390__
+-	"-D__s390__",
+-# endif
+ # ifdef __GNUC__
+ 	"-traditional",
+ # endif
+ #endif
+-#ifdef __s390__
+-    "-D__s390__",
+-#endif
+-#ifdef __s390x__
+-    "-D__s390x__",
+-#endif
+ #ifdef Oki
+ 	"-DOki",
+ #endif
+@@ -507,7 +551,6 @@
+ 	"-DNCR",	/* NCR */
+ #endif
+ #ifdef linux
+-        "-traditional",
+         "-Dlinux",
+ #endif
+ #ifdef __uxp__
+@@ -733,9 +776,18 @@
+ #ifdef sparc
+ 	{"sparc", "1"},
+ #endif
++#ifdef __sparc
++	{"__sparc", "1"},
++#endif
++#ifdef __sparcv9
++	{"__sparcv9", "1"},
++#endif
+ #ifdef __sparc__
+ 	{"__sparc__", "1"},
+ #endif
++#ifdef __sparcv9__
++	{"__sparcv9__", "1"},
++#endif
+ #ifdef hpux
+ 	{"hpux", "1"},
+ #endif
+@@ -823,6 +875,12 @@
+ #ifdef m68k
+         {"m68k", "1"},
+ #endif
++#ifdef M68k
++        {"M68k", "1"},
++#endif
++#ifdef __m68k__
++	{"__m68k__", "1"},
++#endif
+ #ifdef m88k
+         {"m88k", "1"},
+ #endif
+@@ -850,6 +908,9 @@
+ #ifdef __osf__
+ 	{"__osf__", "1"},
+ #endif
++#ifdef __amiga__
++	{"__amiga__", "1"},
++#endif
+ #ifdef __alpha
+ 	{"__alpha", "1"},
+ #endif
+@@ -908,6 +969,24 @@
+ #ifdef __sgi
+ 	{"__sgi", "1"},
+ #endif
++#ifdef _MIPS_FPSET
++	{"_MIPS_FPSET", DEF_STRINGIFY(_MIPS_FPSET)},
++#endif
++#ifdef _MIPS_ISA
++	{"_MIPS_ISA", DEF_STRINGIFY(_MIPS_ISA)},
++#endif
++#ifdef _MIPS_SIM
++	{"_MIPS_SIM", DEF_STRINGIFY(_MIPS_SIM)},
++#endif
++#ifdef _MIPS_SZINT
++	{"_MIPS_SZINT", DEF_STRINGIFY(_MIPS_SZINT)},
++#endif
++#ifdef _MIPS_SZLONG
++	{"_MIPS_SZLONG", DEF_STRINGIFY(_MIPS_SZLONG)},
++#endif
++#ifdef _MIPS_SZPTR
++	{"_MIPS_SZPTR", DEF_STRINGIFY(_MIPS_SZPTR)},
++#endif
+ #ifdef __FreeBSD__
+ 	{"__FreeBSD__", "1"},
+ #endif
+@@ -917,9 +996,107 @@
+ #ifdef __NetBSD__
+ 	{"__NetBSD__", "1"},
+ #endif
++#ifdef __GNU__
++	{"__GNU__", "1"},
++#endif
+ #ifdef __ELF__
+ 	{"__ELF__", "1"},
+ #endif
++#ifdef __UNIXOS2__
++	{"__UNIXOS2__", "1"},
++#endif
++#if defined(__QNX__)
++        {"__QNX__", "1"},
++#endif
++#ifdef __QNXNTO__
++        {"__QNXNTO__", "1"},
++#endif
++# ifdef __powerpc__
++	{"__powerpc__", "1"},
++# endif
++# ifdef PowerMAX_OS
++	{"PowerMAX_OS", "1"},
++# endif
++# ifdef ia64
++	{"ia64", "1"},
++# endif
++# ifdef __ia64__
++	{"__ia64__", "1"},
++# endif
++# if defined (amd64) || defined (x86_64)
++	{"amd64", "1"},
++	{"x86_64", "1"},
++# endif
++# if defined (__amd64__) || defined (__x86_64__)
++	{"__amd64__", "1"},
++	{"__x86_64__", "1"},
++# endif
++# ifdef __i386
++	{"__i386", "1"},
++# endif
++# ifdef __i386__
++	{"__i386__", "1"},
++# endif
++# ifdef __i486__
++	{"__i486__", "1"},
++# endif
++# ifdef __i586__
++	{"__i586__", "1"},
++# endif
++# ifdef __i686__
++	{"__i686__", "1"},
++# endif
++# ifdef __k6__
++	{"__k6__", "1"},
++# endif
++# ifdef i386
++	{"i386", "1"},
++# endif
++# ifdef i486
++	{"i486", "1"},
++# endif
++# ifdef i586
++	{"i586", "1"},
++# endif
++# ifdef i686
++	{ "i686", "1"},
++# endif
++# ifdef k6
++	{"k6", "1"},
++# endif
++# ifdef sparc
++	{"sparc", "1"},
++# endif
++# ifdef __sparc__
++	{"__sparc__", "1"},
++# endif
++# ifdef __s390__
++	{"__s390__", "1"},
++# endif
++# ifdef __sh__
++	{"__sh__", "1"},
++# endif
++# ifdef __sh3_
++	{"__sh3__", "1"},
++# endif
++# ifdef __SH3__
++	{"__SH3__", "1"},
++# endif
++# ifdef __SH4__
++	{"__SH4__", "1"},
++# endif
++# ifdef __SH4NOFPU__
++	{"__SH4NOFPU__", "1"},
++# endif
++#if defined(__ppc__)
++        {"__ppc__", "1"},
++#endif
++#if defined(__BIG_ENDIAN__)
++      {"__BIG_ENDIAN__", "1"},
++#endif
++#if defined(__LITTLE_ENDIAN__)
++      {"__LITTLE_ENDIAN__", "1"},
++#endif
+ #ifdef __EMX__
+ 	{"__EMX__", "1"},
+ #endif
+diff -Nur vnc_unixsrc.orig/Xvnc/programs/Xserver/include/servermd.h vnc_unixsrc/Xvnc/programs/Xserver/include/servermd.h
+--- vnc_unixsrc.orig/Xvnc/programs/Xserver/include/servermd.h	2003-02-19 17:39:54.000000000 +0100
++++ vnc_unixsrc/Xvnc/programs/Xserver/include/servermd.h	2004-08-22 17:03:22.644607974 +0200
+@@ -132,7 +132,42 @@
+ 
+ #endif /* vax */
+ 
+-#if (defined(Lynx) && defined(__powerpc__))
++#ifdef __arm32__
++
++#define IMAGE_BYTE_ORDER        LSBFirst
++
++# if defined(XF86MONOVGA) || defined(XF86VGA16) || defined(XF86MONO)
++#  define BITMAP_BIT_ORDER      MSBFirst
++# else
++#  define BITMAP_BIT_ORDER      LSBFirst
++# endif
++
++# if defined(XF86MONOVGA) || defined(XF86VGA16)
++#  define BITMAP_SCANLINE_UNIT  8
++# endif
++
++#define GLYPHPADBYTES           4
++#define GETLEFTBITS_ALIGNMENT   1
++#define LARGE_INSTRUCTION_CACHE
++#define AVOID_MEMORY_READ
++
++#endif /* __arm32__ */
++
++#if defined (hpux)
++
++#define IMAGE_BYTE_ORDER	MSBFirst
++#define BITMAP_BIT_ORDER	MSBFirst
++#define GLYPHPADBYTES		4	/* to make fb work */
++#define GETLEFTBITS_ALIGNMENT	1	/* PA forces longs to 4 */
++					/* byte boundries */
++#define AVOID_MEMORY_READ
++#define FAST_CONSTANT_OFFSET_MODE
++#define LARGE_INSTRUCTION_CACHE
++#define PLENTIFUL_REGISTERS
++
++#endif /* hpux */
++
++#if defined(__powerpc__)
+ 
+ /* For now this is for Xvfb only */
+ #define IMAGE_BYTE_ORDER        MSBFirst
+@@ -147,14 +182,33 @@
+ 
+ #define FAST_MEMCPY
+ 
+-#endif /* LynxOS PowerPC */
++#endif /* PowerPC */
++
++#if defined(__sh__)
++
++#if defined(__BIG_ENDIAN__)
++# define IMAGE_BYTE_ORDER	MSBFirst
++# define BITMAP_BIT_ORDER	MSBFirst
++# define GLYPHPADBYTES		4
++# define GETLEFTBITS_ALIGNMENT	1
++#else
++# define IMAGE_BYTE_ORDER	LSBFirst
++# define BITMAP_BIT_ORDER	LSBFirst
++# define GLYPHPADBYTES		4
++# define GETLEFTBITS_ALIGNMENT	1
++#endif
++
++#define AVOID_MEMORY_READ
++#define FAST_CONSTANT_OFFSET_MODE
++#define LARGE_INSTRUCTION_CACHE
++#define PLENTIFUL_REGISTERS
++
++#endif /* SuperH */
++
+ 
+ #if (defined(sun) && !(defined(i386) && defined(SVR4))) || \
+-    (defined(AMOEBA) && (defined(sparc) || defined(mc68000))) || \
+     (defined(__uxp__) && (defined(sparc) || defined(mc68000))) || \
+-    (defined(Lynx) && defined(__sparc__)) || \
+-    ((defined(__NetBSD__) || defined(__OpenBSD__)) && \
+-     (defined(__sparc__) || defined(__mc68000__)))
++    defined(__sparc__) || defined(__mc68000__)
+ 
+ #if defined(sun386) || defined(sun5)
+ # define IMAGE_BYTE_ORDER	LSBFirst        /* Values for the SUN only */
+@@ -214,20 +268,6 @@
+ 
+ #endif /* ibm */
+ 
+-#ifdef hpux
+-
+-#define IMAGE_BYTE_ORDER	MSBFirst        /* Values for the HP only */
+-#define BITMAP_BIT_ORDER	MSBFirst
+-#define	GLYPHPADBYTES		2		/* to match product server */
+-#define	GETLEFTBITS_ALIGNMENT	4		/* PA forces longs to 4 */
+-						/* byte boundries */
+-#define AVOID_MEMORY_READ
+-#define FAST_CONSTANT_OFFSET_MODE
+-#define LARGE_INSTRUCTION_CACHE
+-#define PLENTIFUL_REGISTERS
+-
+-#endif /* hpux */
+-
+ #if defined (M4310) || defined(M4315) || defined(M4317) || defined(M4319) || defined(M4330)
+ 
+ #define IMAGE_BYTE_ORDER	MSBFirst        /* Values for Pegasus only */
+@@ -306,6 +346,80 @@
+ 
+ #endif /* alpha */
+ 
++#if defined (linux) && defined (__s390__)
++
++#define IMAGE_BYTE_ORDER      	MSBFirst
++#define BITMAP_BIT_ORDER      	MSBFirst
++#define GLYPHPADBYTES         	4
++#define GETLEFTBITS_ALIGNMENT  1	
++
++#define BITMAP_SCANLINE_UNIT	8
++#define LARGE_INSTRUCTION_CACHE
++#define FAST_CONSTANT_OFFSET_MODE
++#define FAST_UNALIGNED_READ
++
++#define FAST_MEMCPY
++
++#endif /* linux/s390 */
++
++#if defined (linux) && defined (__s390x__)
++
++#define IMAGE_BYTE_ORDER       MSBFirst
++#define BITMAP_BIT_ORDER       MSBFirst
++#define GLYPHPADBYTES          4
++#define GETLEFTBITS_ALIGNMENT  1
++
++#define BITMAP_SCANLINE_UNIT	8
++#define LARGE_INSTRUCTION_CACHE
++#define FAST_CONSTANT_OFFSET_MODE
++#define FAST_UNALIGNED_READ
++
++#define FAST_MEMCPY
++#endif /* linux/s390x */
++
++
++#if defined(__ia64__) || defined(ia64)
++# define IMAGE_BYTE_ORDER	LSBFirst
++
++# if defined(XF86MONOVGA) || defined(XF86VGA16) || defined(XF86MONO)
++#  define BITMAP_BIT_ORDER      MSBFirst
++# else
++#  define BITMAP_BIT_ORDER      LSBFirst
++# endif
++
++# if defined(XF86MONOVGA) || defined(XF86VGA16)
++#  define BITMAP_SCANLINE_UNIT  8
++# endif
++
++# define GLYPHPADBYTES		4
++# define GETLEFTBITS_ALIGNMENT	1
++# define FAST_CONSTANT_OFFSET_MODE
++# define LARGE_INSTRUCTION_CACHE
++# define PLENTIFUL_REGISTERS
++
++#endif /* ia64 */
++
++#if defined(__amd64__) || defined(amd64)
++# define IMAGE_BYTE_ORDER	LSBFirst
++
++# if defined(XF86MONOVGA) || defined(XF86VGA16) || defined(XF86MONO)
++#  define BITMAP_BIT_ORDER      MSBFirst
++# else
++#  define BITMAP_BIT_ORDER      LSBFirst
++# endif
++
++# if defined(XF86MONOVGA) || defined(XF86VGA16)
++#  define BITMAP_SCANLINE_UNIT  8
++# endif
++
++# define GLYPHPADBYTES		4
++# define GETLEFTBITS_ALIGNMENT	1
++# define LARGE_INSTRUCTION_CACHE
++# define FAST_CONSTANT_OFFSET_MODE
++/* ???? */
++# define FAST_UNALIGNED_READS
++#endif /* AMD64 */
++
+ #ifdef stellar
+ 
+ #define IMAGE_BYTE_ORDER	MSBFirst       /* Values for the stellar only*/
+@@ -336,13 +450,14 @@
+ 
+ #endif /* luna */
+ 
+-#if ((defined(__s390__) || defined(__s390x__)) && defined(linux))
+-#define IMAGE_BYTE_ORDER   MSBFirst
+-#define BITMAP_BIT_ORDER   MSBFirst
+-#endif /* (__s390__ || __s390x__) && linux */
+-    
+-#if (defined(i386) && (defined(SVR4) || defined(SYSV) || (defined(sun) && defined(SVR4))) || defined(__bsdi__) || (defined(__NetBSD__) && defined(__i386__)) || (defined(__OpenBSD__) && defined(__i386__)) || defined(__FreeBSD__) || defined(MACH386) || (defined(linux) && !defined(__mc68000__)) || (defined(AMOEBA) && defined(i80386)) || defined(MINIX) || defined(__EMX__) || (defined(Lynx) && defined(__i386__)))
+-
++#if	(defined(SVR4) && defined(i386)) || \
++	defined(__alpha__) || defined(__alpha) || \
++	defined(__i386__) || \
++	defined(__UNIXOS2__) || \
++	defined(__OS2ELF__) || \
++	defined(__QNX__) || \
++	defined(__s390x__) || defined(__s390__)
++  
+ #ifndef IMAGE_BYTE_ORDER
+ #define IMAGE_BYTE_ORDER	LSBFirst
+ #endif
+@@ -386,38 +501,6 @@
+ 
+ #endif /* linux/m68k */
+ 
+-#if defined (linux) && defined(__powerpc__)
+-
+-#define IMAGE_BYTE_ORDER       MSBFirst
+-#define BITMAP_BIT_ORDER       MSBFirst
+-#define GLYPHPADBYTES          4
+-#define GETLEFTBITS_ALIGNMENT  1
+-
+-#define LARGE_INSTRUCTION_CACHE  
+-#define FAST_CONSTANT_OFFSET_MODE
+-#define PLENTIFUL_REGISTERS
+-#define AVOID_MEMORY_READ
+-
+-#define FAST_MEMCPY
+-
+-#endif /* Linux/PPC */
+-
+-#if defined(__MACH__) && defined(__POWERPC__)
+-
+-#define IMAGE_BYTE_ORDER       MSBFirst
+-#define BITMAP_BIT_ORDER       MSBFirst
+-#define GLYPHPADBYTES          4
+-#define GETLEFTBITS_ALIGNMENT  1
+-
+-#define LARGE_INSTRUCTION_CACHE  
+-#define FAST_CONSTANT_OFFSET_MODE
+-#define PLENTIFUL_REGISTERS
+-#define AVOID_MEMORY_READ
+-
+-#define FAST_MEMCPY
+-
+-#endif /* MACH/PPC */
+-
+ #ifdef sgi
+ 
+ #define IMAGE_BYTE_ORDER	MSBFirst
+@@ -457,6 +540,14 @@
+ 
+ #endif
+ 
++/* linux on the Compaq Itsy */
++#if defined(linux) && defined(__arm__)
++#define IMAGE_BYTE_ORDER	LSBFirst
++#define BITMAP_BIT_ORDER	LSBFirst
++#define GLYPHPADBYTES		4
++#define GETLEFTBITS_ALIGNMENT	1
++#endif
++ 
+ /* size of buffer to use with GetImage, measured in bytes. There's obviously
+  * a trade-off between the amount of stack (or whatever ALLOCATE_LOCAL gives
+  * you) used and the number of times the ddx routine has to be called.
