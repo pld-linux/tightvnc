@@ -1,7 +1,8 @@
 [Desktop Entry]
 Name=tightvnc
 Comment=Remote access software
-Comment[pl]=Program do zdalnej administracji
+Comment[pl]=Program do zdalnego dostępu
 Exec=/usr/X11R6/bin/vncviewer
 Terminal=0
 Type=Application
+# vi: encoding=utf-8
