@@ -2,11 +2,12 @@ Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.2.6
-Release:	1
+Release:	2
 License:	GPL
 Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
-Source0:	http://prdownloads.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
+Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
+Patch0:		%{name}-vncserver.patch
 Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com/
 BuildRequires:	libjpeg-devel
@@ -38,6 +39,7 @@ Summary:	VNC X server - tightvnc version
 Summary(pl):	X serwer VNC - wersja tightvnc
 Group:		X11/Applications/Networking
 Requires:	XFree86-common
+Requires:	xfs
 Obsoletes:	vnc-server
 
 %description server
@@ -66,6 +68,7 @@ stronie serwera, jak i przegl±darki).
 
 %prep
 %setup -qn vnc_unixsrc
+%patch0 -p1
 
 %build
 xmkmf
