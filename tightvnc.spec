@@ -2,7 +2,7 @@ Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.2.9
-Release:	2
+Release:	3
 License:	GPL
 Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
@@ -83,8 +83,8 @@ cd Xvnc
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_datadir}/vnc/classes} \
-	$RPM_BUILD_ROOT%{_applnkdir}/Network
-
+	$RPM_BUILD_ROOT%{_desktopdir}
+	
 install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
 	vncconnect/vncconnect Xvnc/programs/Xserver/Xvnc $RPM_BUILD_ROOT%{_bindir}
 
@@ -96,7 +96,7 @@ install vncpasswd/vncpasswd.man $RPM_BUILD_ROOT%{_mandir}/man1/vncpasswd.1
 install vncconnect/vncconnect.man $RPM_BUILD_ROOT%{_mandir}/man1/vncconnect.1
 install Xvnc/programs/Xserver/Xvnc.man $RPM_BUILD_ROOT%{_mandir}/man1/Xvnc.1
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_applnkdir}/Network
+install %{SOURCE1} $RPM_BUILD_ROOT%{_desktopdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -106,7 +106,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %attr(755,root,root) %{_bindir}/vncviewer
 %{_mandir}/man1/vncviewer.1*
-%{_applnkdir}/Network/tightvnc.desktop
+%{_desktopdir}/tightvnc.desktop
 
 %files server
 %defattr(644,root,root,755)
