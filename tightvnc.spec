@@ -29,7 +29,7 @@ TightVNC you can work remotely almost in real time in most
 environments.
 
 %description -l pl
-VNC jest wspania³ym programem client/server umo¿liwiaj±cym zdalny
+VNC jest wspania³ym programem klient/serwer umo¿liwiaj±cym zdalny
 dostêp do graficznych pulpitów. TightVNC jest zoptymalizowany do pracy
 przy wolniejszych po³±czeniach sieciowych takich jak po³±czenia
 modemowe. Oryginalne VNC mo¿e pracowaæ wolno kiedy po³±czenie nie jest
