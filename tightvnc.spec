@@ -7,6 +7,7 @@ License:	GPL
 Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
+# Source0-md5:	444e697449259308ef6d27078dfe451d
 Patch0:		%{name}-vncserver.patch
 Source1:	%{name}.desktop
 URL:		http://www.tightvnc.com/
