@@ -1,5 +1,6 @@
 # TODO:
-# tightvnc.init
+# - tightvnc.init
+# - segfaults on amd64
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
@@ -43,6 +44,8 @@ Summary:	VNC X server - tightvnc version
 Summary(pl):	X serwer VNC - wersja tightvnc
 Group:		X11/Applications/Networking
 Requires:	XFree86-common
+# for vncpasswd tool
+Requires:	%{name}-utils = %{version}-%{release}
 Obsoletes:	vnc-server
 
 %description server
@@ -89,7 +92,7 @@ cd Xvnc
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_datadir}/vnc/classes} \
 	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
-	
+
 install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
 	vncconnect/vncconnect Xvnc/programs/Xserver/Xvnc $RPM_BUILD_ROOT%{_bindir}
 
