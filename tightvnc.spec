@@ -1,20 +1,24 @@
 # TODO:
 # - tightvnc.init
 # - segfaults on amd64
+%define	_rel 1.4
+%define	_rc dev7
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3
-Release:	0.dev7.1
+Release:	0.%{_rc}.%{_rel}
 License:	GPL
 Group:		X11/Applications/Networking
 #Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
-Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}dev7_unixsrc.tar.bz2
+Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}%{_rc}_unixsrc.tar.bz2
 # Source0-md5:	8e9e63f19d8351a5359c0cc15d96c18c
 Source1:	%{name}.desktop
 Source2:	%{name}48.png
 Patch0:		%{name}-vncserver.patch
 Patch1:		%{name}-imake.patch
+Patch2:		%{name}-security.patch
+Patch3:		%{name}-imake-tmpdir.patch
 URL:		http://www.tightvnc.com/
 BuildRequires:	XFree86-devel
 BuildRequires:	libjpeg-devel
@@ -46,6 +50,8 @@ Group:		X11/Applications/Networking
 Requires:	XFree86-common
 # for vncpasswd tool
 Requires:	%{name}-utils = %{version}-%{release}
+# for mcookie
+Requires:	util-linux
 Obsoletes:	vnc-server
 
 %description server
@@ -76,6 +82,8 @@ stronie serwera, jak i przegl±darki).
 %setup -qn vnc_unixsrc
 %patch0 -p1
 %patch1 -p1
+%patch2 -p2
+%patch3 -p1
 
 %build
 xmkmf
