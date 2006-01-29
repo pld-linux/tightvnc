@@ -25,6 +25,8 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	zlib
 Provides:	vnc-client
 Obsoletes:	vnc
+# server proc crashes atm
+ExcludeArch:	amd64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
