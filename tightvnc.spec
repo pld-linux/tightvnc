@@ -5,7 +5,7 @@ Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3.8
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		X11/Applications/Networking
 #Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
@@ -18,9 +18,13 @@ Patch1:		%{name}-imake.patch
 Patch2:		%{name}-security.patch
 Patch3:		%{name}-imake-tmpdir.patch
 URL:		http://www.tightvnc.com/
-BuildRequires:	XFree86-devel
 BuildRequires:	cpp
 BuildRequires:	libjpeg-devel
+BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	xorg-lib-libXaw-devel
+BuildRequires:	xorg-lib-libXext-devel
+BuildRequires:	xorg-lib-libXt-devel
+BuildRequires:	xorg-util-gccmakedep
 BuildRequires:	zlib
 Provides:	vnc-client
 Obsoletes:	vnc
@@ -90,12 +94,14 @@ stronie serwera, jak i przegl±darki).
 xmkmf
 %{__make} World \
 	CC="%{__cc}" \
-	CDEBUGFLAGS="%{rpmcflags}"
+	CDEBUGFLAGS="%{rpmcflags}" \
+	EXTRA_LDOPTIONS="%{rpmldflags}"
 cd Xvnc
 ./configure
 %{__make} \
 	CC="%{__cc}" \
-	CDEBUGFLAGS="%{rpmcflags}"
+	CDEBUGFLAGS="%{rpmcflags}" \
+	EXTRA_LDOPTIONS="%{rpmldflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
