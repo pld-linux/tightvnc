@@ -8,7 +8,6 @@ Version:	1.3.8
 Release:	0.2
 License:	GPL
 Group:		X11/Applications/Networking
-#Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
 # Source0-md5:	9b9b0465834289d1b7899982c0096440
 Source1:	%{name}.desktop
@@ -20,11 +19,13 @@ Patch3:		%{name}-imake-tmpdir.patch
 URL:		http://www.tightvnc.com/
 BuildRequires:	cpp
 BuildRequires:	libjpeg-devel
+BuildRequires:	xorg-cf-files >= 1.0.1-0.3
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXaw-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXt-devel
 BuildRequires:	xorg-util-gccmakedep
+BuildRequires:	xorg-util-imake
 BuildRequires:	zlib
 Provides:	vnc-client
 Obsoletes:	vnc
