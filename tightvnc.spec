@@ -2,7 +2,7 @@
 # - tightvnc.init
 # - segfaults on amd64
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
-Summary(pl.UTF-8):   tightvnc - aplikacja bazująca na VNC w wersji 3.3.3r2
+Summary(pl.UTF-8):	tightvnc - aplikacja bazująca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3.8
 Release:	1
@@ -51,7 +51,7 @@ niemal w czasie rzeczywistym.
 
 %package server
 Summary:	VNC X server - tightvnc version
-Summary(pl.UTF-8):   X serwer VNC - wersja tightvnc
+Summary(pl.UTF-8):	X serwer VNC - wersja tightvnc
 Group:		X11/Applications/Networking
 Requires:	XFree86-common
 # for vncpasswd tool
@@ -68,7 +68,7 @@ Ten pakiet zawiera X serwer VNC w wersji tightvnc.
 
 %package utils
 Summary:	Additional utilities for tightvnc
-Summary(pl.UTF-8):   Dodatkowe narzędzia do tightvnc
+Summary(pl.UTF-8):	Dodatkowe narzędzia do tightvnc
 Group:		X11/Applications/Networking
 Obsoletes:	vnc-utils
 
