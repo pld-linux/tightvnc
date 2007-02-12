@@ -2,7 +2,7 @@
 # - tightvnc.init
 # - segfaults on amd64
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
-Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
+Summary(pl.UTF-8):   tightvnc - aplikacja bazujÄ…ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3.8
 Release:	1
@@ -41,17 +41,17 @@ may be verry slow when your connection is not fast enough, with
 TightVNC you can work remotely almost in real time in most
 environments.
 
-%description -l pl
-VNC jest wspania³ym programem klient/serwer umo¿liwiaj±cym zdalny
-dostêp do graficznych pulpitów. TightVNC jest zoptymalizowany do pracy
-przy wolniejszych po³±czeniach sieciowych takich jak po³±czenia
-modemowe. Oryginalne VNC mo¿e pracowaæ wolno kiedy po³±czenie nie jest
-wystarczaj±co szybkie, natomiast z TightVNC mo¿esz pracowaæ zdalnie
+%description -l pl.UTF-8
+VNC jest wspaniaÅ‚ym programem klient/serwer umoÅ¼liwiajÄ…cym zdalny
+dostÄ™p do graficznych pulpitÃ³w. TightVNC jest zoptymalizowany do pracy
+przy wolniejszych poÅ‚Ä…czeniach sieciowych takich jak poÅ‚Ä…czenia
+modemowe. Oryginalne VNC moÅ¼e pracowaÄ‡ wolno kiedy poÅ‚Ä…czenie nie jest
+wystarczajÄ…co szybkie, natomiast z TightVNC moÅ¼esz pracowaÄ‡ zdalnie
 niemal w czasie rzeczywistym.
 
 %package server
 Summary:	VNC X server - tightvnc version
-Summary(pl):	X serwer VNC - wersja tightvnc
+Summary(pl.UTF-8):   X serwer VNC - wersja tightvnc
 Group:		X11/Applications/Networking
 Requires:	XFree86-common
 # for vncpasswd tool
@@ -63,12 +63,12 @@ Obsoletes:	vnc-server
 %description server
 This package contains VNC X server in tightvnc version.
 
-%description server -l pl
+%description server -l pl.UTF-8
 Ten pakiet zawiera X serwer VNC w wersji tightvnc.
 
 %package utils
 Summary:	Additional utilities for tightvnc
-Summary(pl):	Dodatkowe narzêdzia do tightvnc
+Summary(pl.UTF-8):   Dodatkowe narzÄ™dzia do tightvnc
 Group:		X11/Applications/Networking
 Obsoletes:	vnc-utils
 
@@ -78,11 +78,11 @@ vncpasswd. vncconnect tells Xvnc server to connect to a listening
 tightvnc viewer. vncpasswd generates password file (both on server and
 viewer side).
 
-%description utils -l pl
-Ten pakiet zawiera dodatkowe narzêdzia do tightvnc: vncconnect i
-vncpasswd. vncconnect s³u¿y do po³±czenia serwera Xvnc z nas³uchuj±cym
-vncviewerem. vncpasswd s³u¿y to tworzenia pliku z has³em (zarówno po
-stronie serwera, jak i przegl±darki).
+%description utils -l pl.UTF-8
+Ten pakiet zawiera dodatkowe narzÄ™dzia do tightvnc: vncconnect i
+vncpasswd. vncconnect sÅ‚uÅ¼y do poÅ‚Ä…czenia serwera Xvnc z nasÅ‚uchujÄ…cym
+vncviewerem. vncpasswd sÅ‚uÅ¼y to tworzenia pliku z hasÅ‚em (zarÃ³wno po
+stronie serwera, jak i przeglÄ…darki).
 
 %prep
 %setup -qn vnc_unixsrc
