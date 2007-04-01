@@ -5,7 +5,7 @@ Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl.UTF-8):	tightvnc - aplikacja bazująca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3.8
-Release:	2.2
+Release:	2.3
 License:	GPL
 Group:		X11/Applications/Networking
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
@@ -104,7 +104,8 @@ cd Xvnc
 %{__make} \
 	CC="%{__cc}" \
 	CDEBUGFLAGS="%{rpmcflags}" \
-	EXTRA_LDOPTIONS="%{rpmldflags}"
+	EXTRA_LDOPTIONS="%{rpmldflags}" \
+	FONTDIR=/usr/share/fonts
 
 %install
 rm -rf $RPM_BUILD_ROOT
