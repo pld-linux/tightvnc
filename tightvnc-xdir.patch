@@ -22,6 +22,22 @@ diff -Nur vnc_unixsrc/Xvnc/config/cf/vnc.def n.vnc_unixsrc/Xvnc/config/cf/vnc.de
  #endif
  #endif
  
+diff -Nur vnc_unixsrc/Xvnc/programs/Xserver/include/site.h n.vnc_unixsrc/Xvnc/programs/Xserver/include/site.h
+--- vnc_unixsrc/Xvnc/programs/Xserver/include/site.h	2000-06-11 14:00:52.000000000 +0200
++++ n.vnc_unixsrc/Xvnc/programs/Xserver/include/site.h	2007-04-01 19:12:54.099527340 +0200
+@@ -75,10 +75,10 @@
+  * DO NOT CHANGE THESE VALUES OR THE DIX IMAKEFILE!
+  */
+ #ifndef COMPILEDDEFAULTFONTPATH
+-#define COMPILEDDEFAULTFONTPATH	"/usr/lib/X11/fonts/misc/"
++#define COMPILEDDEFAULTFONTPATH	"/usr/share/fonts/misc/"
+ #endif
+ #ifndef RGB_DB
+-#define RGB_DB			"/usr/lib/X11/rgb"
++#define RGB_DB			"/usr/share/X11/rgb.txt"
+ #endif
+ 
+ /*
 diff -Nur vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c n.vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c
 --- vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c	2000-06-11 14:00:52.000000000 +0200
 +++ n.vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c	2007-04-01 18:31:35.230341763 +0200
