@@ -1,0 +1,36 @@
+diff -Nur vnc_unixsrc/Xvnc/config/cf/site.def n.vnc_unixsrc/Xvnc/config/cf/site.def
+--- vnc_unixsrc/Xvnc/config/cf/site.def	2003-01-29 14:50:24.000000000 +0100
++++ n.vnc_unixsrc/Xvnc/config/cf/site.def	2007-04-01 18:33:14.813178517 +0200
+@@ -90,7 +90,7 @@
+ 
+ /* REMOVE
+ #ifndef ProjectRoot
+-#define ProjectRoot /usr/X11R6
++#define ProjectRoot /usr
+ #endif
+ */
+ 
+diff -Nur vnc_unixsrc/Xvnc/config/cf/vnc.def n.vnc_unixsrc/Xvnc/config/cf/vnc.def
+--- vnc_unixsrc/Xvnc/config/cf/vnc.def	2006-08-10 13:01:07.000000000 +0200
++++ n.vnc_unixsrc/Xvnc/config/cf/vnc.def	2007-04-01 18:34:33.294707848 +0200
+@@ -121,7 +121,7 @@
+ #define ProjectRoot /usr/openwin
+ #else
+ #ifdef LinuxArchitecture
+-#define ProjectRoot /usr/X11R6
++#define ProjectRoot /usr
+ #endif
+ #endif
+ 
+diff -Nur vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c n.vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c
+--- vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c	2000-06-11 14:00:52.000000000 +0200
++++ n.vnc_unixsrc/Xvnc/programs/Xserver/os/wrapper.c	2007-04-01 18:31:35.230341763 +0200
+@@ -39,7 +39,7 @@
+ 
+ /* This is normally set in the Imakefile */
+ #ifndef XSERVER_PATH
+-#define XSERVER_PATH	"/usr/X11R6/bin/X"
++#define XSERVER_PATH	"/usr/bin/X"
+ #endif
+ 
+ #include <stdio.h>

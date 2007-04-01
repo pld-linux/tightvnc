@@ -5,7 +5,7 @@ Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl.UTF-8):	tightvnc - aplikacja bazująca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3.8
-Release:	2
+Release:	2.1
 License:	GPL
 Group:		X11/Applications/Networking
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
@@ -16,6 +16,7 @@ Patch0:		%{name}-vncserver.patch
 Patch1:		%{name}-imake.patch
 Patch2:		%{name}-security.patch
 Patch3:		%{name}-imake-tmpdir.patch
+Patch4:		%{name}-xdir.patch
 URL:		http://www.tightvnc.com/
 BuildRequires:	cpp
 BuildRequires:	libjpeg-devel
@@ -90,6 +91,7 @@ stronie serwera, jak i przeglądarki).
 %patch1 -p1
 %patch2 -p2
 %patch3 -p1
+%patch4 -p1
 
 %build
 xmkmf
