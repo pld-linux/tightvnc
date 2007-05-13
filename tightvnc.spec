@@ -1,23 +1,31 @@
 # TODO:
-# tightvnc.init
+# - tightvnc.init
+# - segfaults on amd64
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
-Summary(pl):	tightvnc - aplikacja bazuj±ca na VNC w wersji 3.3.3r2
+Summary(pl.UTF-8):	tightvnc - aplikacja bazujÄ…ca na VNC w wersji 3.3.3r2
 Name:		tightvnc
-Version:	1.2.9
-Release:	7
+Version:	1.3.9
+Release:	0.1
 License:	GPL
-Vendor:		Const Kaplinsky <const_k@users.sourceforge.net>
 Group:		X11/Applications/Networking
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
-# Source0-md5:	f804b26c098625e3a2675a0aa7709e31
+# Source0-md5:	49a0748ea52793f2e3069e05af28f716
+Source1:	%{name}.desktop
+Source2:	%{name}48.png
 Patch0:		%{name}-vncserver.patch
 Patch1:		%{name}-imake.patch
-Source1:	%{name}.desktop
+Patch2:		%{name}-security.patch
+Patch3:		%{name}-imake-tmpdir.patch
 URL:		http://www.tightvnc.com/
+BuildRequires:	cpp
 BuildRequires:	libjpeg-devel
+BuildRequires:	X11-devel
+BuildRequires:	X11-imake
 BuildRequires:	zlib
 Provides:	vnc-client
 Obsoletes:	vnc
+# server proc crashes atm
+#ExcludeArch:	amd64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -28,30 +36,34 @@ may be verry slow when your connection is not fast enough, with
 TightVNC you can work remotely almost in real time in most
 environments.
 
-%description -l pl
-VNC jest wspania³ym programem klient/serwer umo¿liwiaj±cym zdalny
-dostêp do graficznych pulpitów. TightVNC jest zoptymalizowany do pracy
-przy wolniejszych po³±czeniach sieciowych takich jak po³±czenia
-modemowe. Oryginalne VNC mo¿e pracowaæ wolno kiedy po³±czenie nie jest
-wystarczaj±co szybkie, natomiast z TightVNC mo¿esz pracowaæ zdalnie
+%description -l pl.UTF-8
+VNC jest wspaniaÅ‚ym programem klient/serwer umoÅ¼liwiajÄ…cym zdalny
+dostÄ™p do graficznych pulpitÃ³w. TightVNC jest zoptymalizowany do pracy
+przy wolniejszych poÅ‚Ä…czeniach sieciowych takich jak poÅ‚Ä…czenia
+modemowe. Oryginalne VNC moÅ¼e pracowaÄ‡ wolno kiedy poÅ‚Ä…czenie nie jest
+wystarczajÄ…co szybkie, natomiast z TightVNC moÅ¼esz pracowaÄ‡ zdalnie
 niemal w czasie rzeczywistym.
 
 %package server
 Summary:	VNC X server - tightvnc version
-Summary(pl):	X serwer VNC - wersja tightvnc
+Summary(pl.UTF-8):	X serwer VNC - wersja tightvnc
 Group:		X11/Applications/Networking
-Requires:	XFree86-common
+Requires:	X11-common
+# for vncpasswd tool
+Requires:	%{name}-utils = %{version}-%{release}
+# for mcookie
+Requires:	util-linux
 Obsoletes:	vnc-server
 
 %description server
 This package contains VNC X server in tightvnc version.
 
-%description server -l pl
+%description server -l pl.UTF-8
 Ten pakiet zawiera X serwer VNC w wersji tightvnc.
 
 %package utils
 Summary:	Additional utilities for tightvnc
-Summary(pl):	Dodatkowe narzêdzia do tightvnc
+Summary(pl.UTF-8):	Dodatkowe narzÄ™dzia do tightvnc
 Group:		X11/Applications/Networking
 Obsoletes:	vnc-utils
 
@@ -61,33 +73,38 @@ vncpasswd. vncconnect tells Xvnc server to connect to a listening
 tightvnc viewer. vncpasswd generates password file (both on server and
 viewer side).
 
-%description utils -l pl
-Ten pakiet zawiera dodatkowe narzêdzia do tightvnc: vncconnect i
-vncpasswd. vncconnect s³u¿y do po³±czenia serwera Xvnc z nas³uchuj±cym
-vncviewerem. vncpasswd s³u¿y to tworzenia pliku z has³em (zarówno po
-stronie serwera, jak i przegl±darki).
+%description utils -l pl.UTF-8
+Ten pakiet zawiera dodatkowe narzÄ™dzia do tightvnc: vncconnect i
+vncpasswd. vncconnect sÅ‚uÅ¼y do poÅ‚Ä…czenia serwera Xvnc z nasÅ‚uchujÄ…cym
+vncviewerem. vncpasswd sÅ‚uÅ¼y to tworzenia pliku z hasÅ‚em (zarÃ³wno po
+stronie serwera, jak i przeglÄ…darki).
 
 %prep
 %setup -qn vnc_unixsrc
 %patch0 -p1
 %patch1 -p1
+%patch2 -p2
+%patch3 -p1
 
 %build
 xmkmf
 %{__make} World \
 	CC="%{__cc}" \
-	CDEBUGFLAGS="%{rpmcflags}"
+	CDEBUGFLAGS="%{rpmcflags}" \
+	EXTRA_LDOPTIONS="%{rpmldflags}"
 cd Xvnc
 ./configure
 %{__make} \
 	CC="%{__cc}" \
-	CDEBUGFLAGS="%{rpmcflags}"
+	CDEBUGFLAGS="%{rpmcflags}" \
+	EXTRA_LDOPTIONS="%{rpmldflags}" \
+	FONTDIR=/usr/share/fonts
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_datadir}/vnc/classes} \
-	$RPM_BUILD_ROOT%{_desktopdir}
-	
+	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
+
 install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
 	vncconnect/vncconnect Xvnc/programs/Xserver/Xvnc $RPM_BUILD_ROOT%{_bindir}
 
@@ -100,6 +117,7 @@ install vncconnect/vncconnect.man $RPM_BUILD_ROOT%{_mandir}/man1/vncconnect.1
 install Xvnc/programs/Xserver/Xvnc.man $RPM_BUILD_ROOT%{_mandir}/man1/Xvnc.1
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE2} $RPM_BUILD_ROOT%{_pixmapsdir}/%{name}.png
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -110,6 +128,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/vncviewer
 %{_mandir}/man1/vncviewer.1*
 %{_desktopdir}/tightvnc.desktop
+%{_pixmapsdir}/tightvnc.png
 
 %files server
 %defattr(644,root,root,755)
