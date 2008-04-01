@@ -101,7 +101,7 @@ xmkmf
 	EXTRA_LDOPTIONS="%{rpmldflags}"
 cd Xvnc
 ./configure
-%{__make} \
+%{__make} -j1 \
 	CC="%{__cc}" \
 	CDEBUGFLAGS="%{rpmcflags}" \
 	EXTRA_LDOPTIONS="%{rpmldflags}" \
