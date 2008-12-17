@@ -1,6 +1,5 @@
 # TODO:
 # - tightvnc.init
-# - segfaults on amd64
 Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl.UTF-8):	tightvnc - aplikacja bazująca na VNC w wersji 3.3.3r2
 Name:		tightvnc
@@ -13,10 +12,11 @@ Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
 Source1:	%{name}.desktop
 Source2:	%{name}48.png
 Patch0:		%{name}-vncserver.patch
-Patch1:		%{name}-imake.patch
-Patch2:		%{name}-security.patch
-Patch3:		%{name}-imake-tmpdir.patch
-Patch4:		%{name}-xdir.patch
+Patch1:		%{name}-x86_64.patch
+Patch2:		%{name}-imake.patch
+Patch3:		%{name}-security.patch
+Patch4:		%{name}-imake-tmpdir.patch
+Patch5:		%{name}-xdir.patch
 URL:		http://www.tightvnc.com/
 BuildRequires:	cpp
 BuildRequires:	libjpeg-devel
@@ -30,8 +30,6 @@ BuildRequires:	xorg-util-imake
 BuildRequires:	zlib
 Provides:	vnc-client
 Conflicts:	vnc
-# server proc crashes atm
-ExcludeArch:	amd64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -88,10 +86,14 @@ stronie serwera, jak i przeglądarki).
 %prep
 %setup -qn vnc_unixsrc
 %patch0 -p1
+%ifarch %{x8664}
 %patch1 -p1
-%patch2 -p2
-%patch3 -p1
+%else
+%patch2 -p1
+%endif
+%patch3 -p2
 %patch4 -p1
+%patch5 -p1
 
 %build
 xmkmf
