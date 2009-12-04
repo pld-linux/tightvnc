@@ -27,7 +27,7 @@ BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xorg-lib-libXt-devel
 BuildRequires:	xorg-util-gccmakedep
 BuildRequires:	xorg-util-imake
-BuildRequires:	zlib
+BuildRequires:	zlib-devel
 Provides:	vnc-client
 Conflicts:	vnc
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
