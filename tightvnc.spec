@@ -4,7 +4,7 @@ Summary:	tightvnc - application based on the VNC version 3.3.3r2
 Summary(pl.UTF-8):	tightvnc - aplikacja bazująca na VNC w wersji 3.3.3r2
 Name:		tightvnc
 Version:	1.3.10
-Release:	3
+Release:	4
 License:	GPL
 Group:		X11/Applications/Networking
 Source0:	http://dl.sourceforge.net/vnc-tight/%{name}-%{version}_unixsrc.tar.bz2
@@ -107,12 +107,13 @@ cd Xvnc
 	CC="%{__cc}" \
 	CDEBUGFLAGS="%{rpmcflags}" \
 	EXTRA_LDOPTIONS="%{rpmldflags}" \
-	FONTDIR=/usr/share/fonts
+	FONTDIR=/usr/share/fonts \
+	DefaultRGBDatabase=/usr/share/X11/rgb
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1,%{_datadir}/vnc/classes} \
-	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
+	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir},%{_sysconfdir}}
 
 install vncserver vncviewer/vncviewer vncpasswd/vncpasswd \
 	vncconnect/vncconnect Xvnc/programs/Xserver/Xvnc $RPM_BUILD_ROOT%{_bindir}
@@ -128,6 +129,8 @@ install Xvnc/programs/Xserver/Xvnc.man $RPM_BUILD_ROOT%{_mandir}/man1/Xvnc.1
 install %{SOURCE1} $RPM_BUILD_ROOT%{_desktopdir}
 install %{SOURCE2} $RPM_BUILD_ROOT%{_pixmapsdir}/%{name}.png
 
+install tightvncserver.conf $RPM_BUILD_ROOT%{_sysconfdir}/tightvncserver.conf
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -141,6 +144,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files server
 %defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/tightvncserver.conf
 %attr(755,root,root) %{_bindir}/Xvnc
 %attr(755,root,root) %{_bindir}/vncserver
 %{_datadir}/vnc
