@@ -1,11 +1,12 @@
 --- vnc_unixsrc/vncserver.orig	2004-05-30 17:09:53.000000000 +0200
 +++ vnc_unixsrc/vncserver	2005-03-27 22:44:43.000000000 +0200
-@@ -32,7 +32,7 @@
+@@ -32,7 +32,8 @@
  $geometry = "1024x768";
  $depth = 24;
  $desktopName = "X";
 -$vncClasses = "/usr/local/vnc/classes";
 +$vncClasses = "/usr/share/vnc/classes";
++$colorPath = "/usr/share/X11/rgb";
  $vncUserDir = "$ENV{HOME}/.vnc";
  $fontPath = "unix/:7100";
  $authType = "-rfbauth $vncUserDir/passwd";
